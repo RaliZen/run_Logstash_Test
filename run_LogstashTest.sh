@@ -1,20 +1,24 @@
 #!/bin/bash
 
-cd ~
+cd /tmp
 
 # Check if Logstash_Test exists 
 
-LST=$(find -type d -name Logstash_Test)
-echo $LST 
-
+LST="/tmp/work/Logstash_Test/"
 if [ -d "$LST" ]
 then
 cd $LST
 # Update project    
    git pull origin master 
 else
-# Download project
    
+# Create work folder
+ 
+   mkdir work
+   cd work
+
+# Download project
+
    git clone  https://github.com/RaliZen/Logstash_Test.git
    
 # Create data storage folder    
@@ -22,8 +26,8 @@ else
 fi    
 
 # Check if sincedb exists
-cd ~/lst_reports
-DST=$(find -type f -name sincedb_sample_orig)
+
+DST="/tmp/work/lst_reports/sincedb_sample_orig"
 if [ -f "$DST" ] 
 then  
    echo "sincedb exists alreaday"
@@ -33,13 +37,10 @@ then
    rm sincedb_sample_orig
 fi
 
+# Switch to home folder
 cd ~
-# Update the path
-LST=$(find -type d -name Logstash_Test)
-echo $LST
-
 # Run Logstash with the provided data
-./logstash-2.4.0/bin/logstash --allow-env -f "$LST/test_orig_sj.conf"&
+./logstash-2.4.0/bin/logstash -f "/tmp/work/Logstash_Test/test_orig_sj.conf"&
 PID=`pgrep logstash`
 echo $PID
 
