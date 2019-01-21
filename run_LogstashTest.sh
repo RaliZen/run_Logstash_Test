@@ -32,7 +32,7 @@ if [ -f "$DST" ]
 then  
    echo "sincedb exists alreaday"
 # Remove sincedb
-   cd $DST
+   cd /tmp/work/lst_reports
    echo "Removing sincedb"
    rm sincedb_sample_orig
 fi
