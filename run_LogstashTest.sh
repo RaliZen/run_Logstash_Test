@@ -25,6 +25,10 @@ else
    mkdir lst_reports
 fi    
 
+cd /tmp/work/Logstash_Test
+FSZ=$(stat -c %s sample_orig.json)
+echo $FSZ
+
 # Check if sincedb exists
 
 DST="/tmp/work/lst_reports/sincedb_sample_orig"
@@ -41,12 +45,21 @@ fi
 cd ~
 # Run Logstash with the provided data
 ./logstash-2.4.0/bin/logstash -f "/tmp/work/Logstash_Test/test_orig_sj.conf"&
+
 PID=`pgrep logstash`
 echo $PID
 
-sleep 180
-kill -9 $PID&
+cd /tmp/work/lst_reports
+until [ -f sincedb_sample_orig ]
+do
+ sleep 15
+done
+
+if grep -q $FSZ sincedb_sample_orig
+then	
+  kill -s SIGTERM $PID&
 echo "Logstash terminated"
+fi
 
 
 
