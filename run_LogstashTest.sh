@@ -23,8 +23,6 @@ then
                 read -s -p "Enter your password for sudo: " sudoPW
                 echo $sudoPW | sudo -u $User
                 echo 2 | sudo update-alternatives --config java
-                #sudo echo 2 | update-alternatives --config java
-                #sudo update-java-alternatives --set /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
         else
                 echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
                 read -p "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" answer
@@ -36,11 +34,10 @@ then
                         read -s -p "Enter your password for sudo: " sudoPW
                         echo $sudoPW | sudo -u $User
                         sudo apt-get install openjdk-8-jre-headless
-                        #sudo update-java-alternatives --set /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-                        #sudo echo 2 | update-alternatives --config java
                         echo 2 | sudo update-alternatives --config java
                  else
                         echo "Can not run Logstash Test \ Exiting"
+			break
                 fi
         fi
 fi
@@ -62,7 +59,7 @@ else
    	tar -xzf logstash-2.4.0.tar.gz
 fi
 
-# Switch to root folder 
+# Switch to root/tmp folder 
 cd /tmp/
 # Check if Logstash_Test exists 
 LST="/tmp/work/Logstash_Test/"
@@ -100,8 +97,21 @@ cd ~
 # Run Logstash with the provided data
 ./work/logstash-2.4.0/bin/logstash -f "/tmp/work/Logstash_Test/test_orig_sj.conf"&
 
-PID=`pgrep logstash`
-echo $PID
+# Get current logstash process ID
+PID=$(pgrep logstash)
+
+if [ -f  "./work/logstash_test.log" ]
+then
+	LGPID=$(less ./work/logstash_test.log)
+	if [ "$PID" != "$LGPID" ]
+	then	
+       		echo "Previous Logstash process with ID $LGPID still running. New test can not be started"
+		kill -s SIGTERM $PID
+		kill -s SIGTERM $$
+	fi
+else
+	echo $PID | tee ./work/logstash_test.log	
+fi
 
 cd /tmp/work/lst_reports
 until [ -f sincedb_sample_orig ]
@@ -115,7 +125,8 @@ then
 	echo "Logstash terminated"
 fi
 
-
+# Removing logstash_test.log
+rm ~/work/logstash_test.log
 
 
 
