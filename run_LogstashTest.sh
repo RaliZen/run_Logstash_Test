@@ -106,7 +106,9 @@ then
 	if [ "$PID" != "$LGPID" ]
 	then	
        		echo "Previous Logstash process with ID $LGPID still running. New test can not be started"
+		# Terminate Logstash
 		kill -s SIGTERM $PID
+		# Terminate current bash
 		kill -s SIGTERM $$
 	fi
 else
