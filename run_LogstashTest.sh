@@ -98,7 +98,7 @@ cd ~
 ./work/logstash-2.4.0/bin/logstash -f "/tmp/work/Logstash_Test/test_orig_sj.conf"&
 
 # Get current logstash process ID
-PID=$(pgrep logstash)
+PID="$(pgrep logstash)"
 
 if [ -f  "./work/logstash_test.log" ]
 then
