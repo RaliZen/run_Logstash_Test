@@ -12,6 +12,12 @@ if [ -z $JVN  ]
 then
         echo "Installing OpenJDK 1.8.0_191. During the setup you will be prompted to enter your root password."
         # Install Java 8
+	#mkdir /usr/java
+        #cd /usr/java/
+	# Download binary file
+	# wget https://download.java.net/java/early_access/jdk8/b03/BCL/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+	#tar zxvf jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+	#rm jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
         read -s -p "Enter your password for sudo: " sudoPW
         echo $sudoPW | sudo -u $User
         sudo apt-get install openjdk-8-jre-headless
@@ -57,6 +63,8 @@ else
    	echo "Logstash 2.4.0 is being installed"
    	wget https://download.elastic.co/logstash/logstash/logstash-2.4.0.tar.gz
    	tar -xzf logstash-2.4.0.tar.gz
+	# Remove logstash.tar when done unpacking
+	rm logstash-2.4.0.tar.gz
 fi
 
 # Switch to root/tmp folder 
