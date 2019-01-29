@@ -8,7 +8,7 @@ User=$(whoami)
 JV=$( java -version 2>&1 | grep -o -E '[0-9,.,_]+'| head -n1 )
 JVN=$( java -version 2>&1 | tr -dc '0-9' |  cut -c -6  )
 
-if [ -z $JVN  ]
+if [ -z $JV  ]
 then
         echo "Installing OpenJDK 1.8.0_191. During the setup you will be prompted to enter your root password."
         # Install Java 8
