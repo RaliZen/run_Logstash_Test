@@ -2,13 +2,15 @@
 
 # Switch to home folder
 cd ~
+OSV=$(cat /etc/*-release | grep ID_LIKE | cut -c 9-)
+echo "$OSV"
 # Get user
 User=$(whoami)
 # Check Java version, then extract only the relevant numbers
 JV=$( java -version 2>&1 | grep -o -E '[0-9,.,_]+'| head -n1 )
 JVN=$( java -version 2>&1 | tr -dc '0-9' |  cut -c -6  )
 
-if [ -z $JV  ]
+if [ -z "$JV"  ]
 then
         echo "Installing OpenJDK 1.8.0_191. During the setup you will be prompted to enter your root password."
         # Install Java 8
@@ -128,6 +130,16 @@ until [ -f sincedb_sample_orig ]
 do
  	sleep 15
 done
+
+# Check if sincedb has any content. This is a workaround. Sometimes logstash can't find the inode address of the sample file. If however it gets a new address, all runs smoothly. I haven't yet figured out what causes that.
+SDB="$(less sincedb_sample_orig)"
+if [ -z $SDB ]
+then
+        cd /tmp/work/Logstash_Test
+        rm sample_orig.json
+        git checkout .
+fi
+
 
 if grep -q $FSZ sincedb_sample_orig
 then	
