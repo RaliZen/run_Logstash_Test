@@ -171,7 +171,7 @@ then
         			echo "Removing OpenJDK 1.8.0_191"
                 		read -s -p "Enter your password for sudo: " sudoPW
                 		echo $sudoPW | sudo -u $User
-			if
+			fi
 
 			if  [ -z "$G" ]
 			then	
