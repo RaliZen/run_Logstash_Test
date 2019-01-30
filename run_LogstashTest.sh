@@ -14,23 +14,27 @@ if [ -z "$JV"  ]
 then
         echo "Installing OpenJDK 1.8.0_191. During the setup you will be prompted to enter your root password."
         # Install Java 8
-	#mkdir /usr/java
-        #cd /usr/java/
-	# Download binary file
-	# wget https://download.java.net/java/early_access/jdk8/b03/BCL/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-	#tar zxvf jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-	#rm jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
         read -s -p "Enter your password for sudo: " sudoPW
         echo $sudoPW | sudo -u $User
-        sudo apt-get install openjdk-8-jre-headless
+	
+	if [ "$OSV" == "debian" ]
+	then
+		# Installation for Debian-based systems	
+        	sudo apt-get install openjdk-8-jre-headless
+	else
+		# Installation for Red Hat-based systems
+		yum -y install openjdk-8-jre-headless
+	fi
+	
 elif [ $JVN -lt 180191 ]
 then
         if [ -d "/usr/lib/jvm/java-8-openjdk-amd64/" ]
         then
+		echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
                 echo "Switching OpenJDK Version 1.8.0_191"
                 read -s -p "Enter your password for sudo: " sudoPW
                 echo $sudoPW | sudo -u $User
-                echo 2 | sudo update-alternatives --config java
+                sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
         else
                 echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
                 read -p "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" answer
@@ -41,8 +45,17 @@ then
                         echo "OpenJDK 1.8.0_191 is being installed"
                         read -s -p "Enter your password for sudo: " sudoPW
                         echo $sudoPW | sudo -u $User
-                        sudo apt-get install openjdk-8-jre-headless
-                        echo 2 | sudo update-alternatives --config java
+			if [ "$OSV" == "debian" ]
+			then
+				# Debian-based systems
+	                        sudo apt-get install openjdk-8-jre-headless
+                        	echo 2 | sudo update-alternatives --config java
+			else
+				# Red Hat-based systems
+				yum -y install openjdk-8-jre-headless
+
+			fi
+			sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
                  else
                         echo "Can not run Logstash Test \ Exiting"
 			break
@@ -172,13 +185,27 @@ then
         			echo "Removing OpenJDK 1.8.0_191"
                 		read -s -p "Enter your password for sudo: " sudoPW
                 		echo $sudoPW | sudo -u $User
-				sudo apt-get remove openjdk-8-jre-headless
+				if [ "$OSV" == "debian" ]
+				then
+					# Debian-based systems
+					sudo apt-get remove openjdk-8-jre-headless
+				else
+					# Red Hat-based systems
+					yum -y remove openjdk-8-jre-headless
+				fi
 			fi
 
 			# Checking if git was already on this PC. If not it will be removed.
 			if  [ -z "$G" ]
 			then	
-               			sudo apt-get remove git
+				if [ "$OSV" == "debian"]
+				then
+					# Debian-based systems
+					sudo apt-get remove git
+				else	
+					# Red Hat-based systems
+					yum -y remove git
+				fi
         		fi
 
         	rm -rf /tmp/work/Logstash_Test
