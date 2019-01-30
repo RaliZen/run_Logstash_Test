@@ -159,28 +159,30 @@ fi
 # Removing logstash_test.log
 rm ~/work/logstash_test.log
 
-read -p  "Your report is ready and waiting in /tmp/work/lst_reports. Would you like me to reverse any changes, made to your system [y/n]?" reply
-if [ $reply == "y" ]
-then
-	echo "During the setup you will be prompted to enter your root passwort"
-        # Reversing changes
-	if [ -z "$JV" ]
-	then	
-        	echo "Removing OpenJDK 1.8.0_191"
-                read -s -p "Enter your password for sudo: " sudoPW
-                echo $sudoPW | sudo -u $User
-	if
+if [ ! -f "~/work/logstash_test.log" ]
+then	
+	read -p  "Your report is ready and waiting in /tmp/work/lst_reports. Would you like me to reverse any changes, made to your system [y/n]?" reply
+		if [ $reply == "y" ]
+		then
+			echo "During the reverse setup you will be prompted to enter your root passwort"
+        		# Reversing changes
+			if [ -z "$JV" ]
+			then	
+        			echo "Removing OpenJDK 1.8.0_191"
+                		read -s -p "Enter your password for sudo: " sudoPW
+                		echo $sudoPW | sudo -u $User
+			if
 
-	if  [ -z "$G" ]
-	then	
-               	sudo apt-get remove git
-        	sudo apt-get remove openjdk-8-jre-headless
-	fi
+			if  [ -z "$G" ]
+			then	
+               			sudo apt-get remove git
+        			sudo apt-get remove openjdk-8-jre-headless
+			fi
 
-        rm -rf /tmp/work/Logstash_Test
-	rm /tmp/work/lst_reports/sincedb_orig_json
-	rm -rf ~/work
-	echo "Your system and settings have been restored"
+        	rm -rf /tmp/work/Logstash_Test
+		rm /tmp/work/lst_reports/sincedb_orig_json
+		rm -rf ~/work
+		echo "Your system and settings have been restored"
 else
 	echo "Exiting"
         break
