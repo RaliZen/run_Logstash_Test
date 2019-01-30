@@ -67,14 +67,6 @@ fi
 
 sudo -k
 
-# Check if git is installed on this PC
-
-G="$(git --version)"
-	if [ -z "$G" ]
-	then
-	       apt-get install git
-	fi	       
-
 # Check if logstash 2.4.0 is installed on this PC
 if [ -d "./work/logstash-2.4.0/" ]
 then
@@ -132,6 +124,13 @@ cd ~
 # Get current logstash process ID
 PID="$(pgrep logstash)"
 
+# Check if process already running
+
+if [ -z "$PID" ]
+then 
+	sleep 15
+fi	
+
 if [ -f  "./work/logstash_test.log" ]
 then
 	LGPID=$(less ./work/logstash_test.log)
@@ -163,7 +162,7 @@ then
 fi
 
 
-if [ grep -q $FSZ sincedb_sample_orig ]
+if  grep $FSZ sincedb_sample_orig 
 then	
   	kill -s SIGTERM $PID&
 	echo "Logstash terminated"
@@ -195,27 +194,13 @@ then
 				fi
 			fi
 
-			# Checking if git was already on this PC. If not it will be removed.
-			if  [ -z "$G" ]
-			then	
-				if [ "$OSV" == "debian"]
-				then
-					# Debian-based systems
-					sudo apt-get remove git
-				else	
-					# Red Hat-based systems
-					yum -y remove git
-				fi
-        		fi
 
-        	rm -rf /tmp/work/Logstash_Test
-		rm /tmp/work/lst_reports/sincedb_orig_json
-		rm -rf ~/work
-		echo "Your system and settings have been restored"
-else
-	echo "Exiting"
-        break
+        		rm -rf /tmp/work/Logstash_Test
+			rm /tmp/work/lst_reports/sincedb_orig_json
+			rm -rf ~/work
+			echo "Your system and settings have been restored"
+		else
+			echo "Exiting"
+        		break
+		fi
 fi
-
-
-
