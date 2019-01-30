@@ -155,7 +155,7 @@ done
 
 # Check if sincedb has any content. This is a workaround. Sometimes logstash can't find the inode address of the sample file. If however it gets a new address, all runs smoothly. I haven't yet figured out what causes that.
 SDB="$(less sincedb_sample_orig)"
-if [ -z "$SDB2" ]
+if [ -z "$SDB" ]
 then
         cd /tmp/work/Logstash_Test
         rm sample_orig.json
