@@ -166,18 +166,20 @@ then
 		then
 			echo "During the reverse setup you will be prompted to enter your root passwort"
         		# Reversing changes
+			# Checking if Java 8 was already on this PC. If not it will be removed
 			if [ -z "$JV" ]
 			then	
         			echo "Removing OpenJDK 1.8.0_191"
                 		read -s -p "Enter your password for sudo: " sudoPW
                 		echo $sudoPW | sudo -u $User
+				sudo apt-get remove openjdk-8-jre-headless
 			fi
 
+			# Checking if git was already on this PC. If not it will be removed.
 			if  [ -z "$G" ]
 			then	
                			sudo apt-get remove git
-        			sudo apt-get remove openjdk-8-jre-headless
-			fi
+        		fi
 
         	rm -rf /tmp/work/Logstash_Test
 		rm /tmp/work/lst_reports/sincedb_orig_json
