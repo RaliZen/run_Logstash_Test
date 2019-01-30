@@ -98,7 +98,7 @@ else
 fi    
 cd /tmp/work/Logstash_Test
 # Check the size of the input file
-FSZ=$(stat -c %s sample_orig.json)
+FSZ="$(stat -c %s sample_orig.json)"
 echo $FSZ
 # Check if sincedb exists
 DST="/tmp/work/lst_reports/sincedb_sample_orig"
@@ -142,7 +142,7 @@ done
 
 # Check if sincedb has any content. This is a workaround. Sometimes logstash can't find the inode address of the sample file. If however it gets a new address, all runs smoothly. I haven't yet figured out what causes that.
 SDB="$(less sincedb_sample_orig)"
-if [ -z $SDB ]
+if [ -z "$SDB2" ]
 then
         cd /tmp/work/Logstash_Test
         rm sample_orig.json
@@ -150,7 +150,7 @@ then
 fi
 
 
-if grep -q $FSZ sincedb_sample_orig
+if [ grep -q $FSZ sincedb_sample_orig ]
 then	
   	kill -s SIGTERM $PID&
 	echo "Logstash terminated"
