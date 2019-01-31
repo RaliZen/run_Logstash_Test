@@ -93,7 +93,10 @@ then
    	git pull origin master 
 else
 	# Create work folder
-        mkdir work
+        if [ ! -d "/tmp/work" ]
+	then	
+		mkdir work
+	fi
         cd work
 	# Download project
 	git clone  https://github.com/RaliZen/Logstash_Test.git
