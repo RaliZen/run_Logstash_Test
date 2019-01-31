@@ -12,7 +12,7 @@ JVN=$( java -version 2>&1 | tr -dc '0-9' |  cut -c -6  )
 
 if [ -z "$JV"  ]
 then
-        echo "Installing OpenJDK 1.8.0_191. During the setup you will be prompted to enter your root password."
+        echo "Installing OpenJDK 1.8.0_191. During the setup you might be prompted to enter your root password."
         # Install Java 8
         read -s -p "Enter your password for sudo: " sudoPW
         echo $sudoPW | sudo -u $User
@@ -40,7 +40,7 @@ then
                 read -p "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" answer
                 if [ $answer == "y" ]
                 then
-                        echo "During the setup you will be prompted to enter your root passwort"
+                        echo "During the setup you might be prompted to enter your root passwort"
                         #Install Java 8
                         echo "OpenJDK 1.8.0_191 is being installed"
                         read -s -p "Enter your password for sudo: " sudoPW
@@ -58,8 +58,7 @@ then
 			sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
                  else
                         echo "Can not run Logstash Test \ Exiting"
-			break
-                fi
+		fi
         fi
 fi
 
@@ -98,8 +97,11 @@ else
         cd work
 	# Download project
 	git clone  https://github.com/RaliZen/Logstash_Test.git
-	# Create data storage folder    
-   	mkdir lst_reports
+	# Create data storage folder if doesn't already exist
+    	if [ ! -d "/tmp/work/lst_reports" ]
+	then	
+   		mkdir lst_reports
+	fi
 fi    
 cd /tmp/work/Logstash_Test
 # Check the size of the input file
@@ -122,7 +124,8 @@ cd ~
 ./work/logstash-2.4.0/bin/logstash -f "/tmp/work/Logstash_Test/test_orig_sj.conf"&
 
 # Get current logstash process ID
-PID="$(pgrep logstash)"
+PIDP=$(pgrep logstash)
+PID="$(echo $PIDP | cut -c -5 )"
 
 # Check if process already running
 
@@ -145,7 +148,6 @@ then
 else
 	echo $PID | tee ./work/logstash_test.log	
 fi
-
 cd /tmp/work/lst_reports
 until [ -f sincedb_sample_orig ]
 do
@@ -170,6 +172,8 @@ fi
 
 # Removing logstash_test.log
 rm ~/work/logstash_test.log
+
+sleep 15
 
 if [ ! -f "~/work/logstash_test.log" ]
 then	
@@ -196,11 +200,10 @@ then
 
 
         		rm -rf /tmp/work/Logstash_Test
-			rm /tmp/work/lst_reports/sincedb_orig_json
+			rm /tmp/work/lst_reports/sincedb_sample_orig
 			rm -rf ~/work
 			echo "Your system and settings have been restored"
 		else
 			echo "Exiting"
-        		break
-		fi
+        	fi
 fi
