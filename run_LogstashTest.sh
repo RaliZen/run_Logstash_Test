@@ -7,8 +7,8 @@ echo "$OSV"
 # Get user
 User=$(whoami)
 # Check Java version, then extract only the relevant numbers
-JV=$( java -version 2>&1 | grep -o -E '[0-9,.,_]+'| head -n1 )
-JVN=$( java -version 2>&1 | tr -dc '0-9' |  cut -c -6  )
+JV=$( java -version 2>&1 | grep -o -E '[0-9,., _]+'| head -n1 )
+JVN=$( $JV | tr -dc '0-9' |  cut -c -6  )
 
 if [ -z "$JV"  ]
 then
@@ -20,10 +20,10 @@ then
 	if [ "$OSV" == "debian" ]
 	then
 		# Installation for Debian-based systems	
-        	sudo apt-get install openjdk-8-jre-headless
+        	sudo apt install openjdk-8-jre-headless
 	else
 		# Installation for Red Hat-based systems
-		yum -y install openjdk-8-jre-headless
+		sudo yum -y install openjdk-8-jre-headless
 	fi
 	
 elif [ $JVN -lt 180191 ]
@@ -48,11 +48,11 @@ then
 			if [ "$OSV" == "debian" ]
 			then
 				# Debian-based systems
-	                        sudo apt-get install openjdk-8-jre-headless
+	                        sudo apt install openjdk-8-jre-headless
                         	echo 2 | sudo update-alternatives --config java
 			else
 				# Red Hat-based systems
-				yum -y install openjdk-8-jre-headless
+				sudo yum -y install openjdk-8-jre-headless
 
 			fi
 			sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
