@@ -7,8 +7,8 @@ echo "$OSV"
 # Get user
 User=$(whoami)
 # Check Java version, then extract only the relevant numbers
-JV=$( java -version 2>&1 | grep -o -E '[0-9,., _]+'| head -n1 )
-JVN=$( $JV | tr -dc '0-9' |  cut -c -6  )
+JV=$(java -version 2>&1 | grep -o -E '[0-9,.,_]+'| head -n1)
+JVN=$(java -version 2>&1 | grep -o -E '[0-9,.,_]+'| head -n1 | tr -dc '0-9' |  cut -c -6)
 
 if [ -z "$JV"  ]
 then
@@ -26,7 +26,7 @@ then
 		sudo yum -y install openjdk-8-jre-headless
 	fi
 	
-elif [ $JVN -lt 180191 ]
+elif [ $JVN -gt 180191 ]
 then
         if [ -d "/usr/lib/jvm/java-8-openjdk-amd64/" ]
         then
