@@ -9,9 +9,12 @@ User=$(whoami)
 # Check Java version, then extract only the relevant numbers
 JV=$(java -version 2>&1 |head -n1 | grep -o -E '[0-9,.,_]+')
 JVN=$(echo "$JV" | tr -dc '0-9' |  cut -c -6)
+java -version 2>&1 | grep "version"
+TEST=$(echo $?)
 
-if [ -z "$JV"  ]
+if [ $TEST -ne 0 ]
 then
+
         echo "Installing OpenJDK 1.8.0_191. During the setup you might be prompted to enter your root password."
         # Install Java 8
         read -s -p "Enter your password for sudo: " sudoPW
