@@ -40,28 +40,37 @@ then
                 sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
         else
                 echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
-                read -p "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" answer
-                if [ $answer == "y" ]
-                then
-                        echo "During the setup you might be prompted to enter your root passwort"
-                        #Install Java 8
-                        echo "OpenJDK 1.8.0_191 is being installed"
-                        read -s -p "Enter your password for sudo: " sudoPW
-                        echo $sudoPW | sudo -u $User
-			if [ "$OSV" == "debian" ]
-			then
-				# Debian-based systems
-	                        sudo apt install openjdk-8-jre-headless
-                        	echo 2 | sudo update-alternatives --config java
-			else
-				# Red Hat-based systems
-				sudo yum -y install openjdk-8-jre-headless
+                echo "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" 
+               	while read -r answer 
+		do
+			if [ "$answer" == "y" ]
+                	then
+                        	echo "During the setup you might be prompted to enter your root passwort"
+                        	#Install Java 8
+                        	echo "OpenJDK 1.8.0_191 is being installed"
+                       		read -s -p "Enter your password for sudo: " sudoPW
+                        	echo $sudoPW | sudo -u $User
+				if [ "$OSV" == "debian" ]
+				then
+					# Debian-based systems
+	                        	sudo apt install openjdk-8-jre-headless
+                        		echo 2 | sudo update-alternatives --config java
+				else
+					# Red Hat-based systems
+					sudo yum -y install openjdk-8-jre-headless
 
+				fi
+				sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+                	elif [ "$answer" == "n" ]
+			then
+                        	echo "Can not run Logstash Test \ Exiting"
+				break
+			else
+				echo $answer " is not a valid option. Please use "y" for "yes" or "n" for "no"."
+				continue	
 			fi
-			sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-                 else
-                        echo "Can not run Logstash Test \ Exiting"
-		fi
+			break
+		done
         fi
 fi
 
@@ -183,33 +192,43 @@ sleep 15
 
 if [ ! -f "~/work/logstash_test.log" ]
 then	
-	read -p  "Your report is ready and waiting in /tmp/work/lst_reports. Would you like me to reverse any changes, made to your system [y/n]?" reply
-		if [ $reply == "y" ]
-		then
-			echo "During the reverse setup you will be prompted to enter your root passwort"
-        		# Reversing changes
-			# Checking if Java 8 was already on this PC. If not it will be removed
-			if [ -z "$JV" ]
-			then	
-        			echo "Removing OpenJDK 1.8.0_191"
-                		read -s -p "Enter your password for sudo: " sudoPW
-                		echo $sudoPW | sudo -u $User
-				if [ "$OSV" == "debian" ]
-				then
-					# Debian-based systems
-					sudo apt-get remove openjdk-8-jre-headless
-				else
-					# Red Hat-based systems
-					yum -y remove openjdk-8-jre-headless
+	echo "Your report is ready and waiting in /tmp/work/lst_reports. Would you like me to reverse any changes, made to your system [y/n]?"
+		while read -r reply
+		do
+			if [ "$reply" == "y" ]
+			then
+				echo "During the reverse setup you will be prompted to enter your root passwort"
+        			# Reversing changes
+				# Checking if Java 8 was already on this PC. If not it will be removed
+				if [ -z "$JV" ]
+				then	
+        				echo "Removing OpenJDK 1.8.0_191"
+                			read -s -p "Enter your password for sudo: " sudoPW
+                			echo $sudoPW | sudo -u $User
+					if [ "$OSV" == "debian" ]
+					then
+						# Debian-based systems
+						sudo apt-get remove openjdk-8-jre-headless
+					else
+						# Red Hat-based systems
+						sudo yum -y remove openjdk-8-jre-headless
+					fi
+
 				fi
-			fi
 
+        			rm -rf /tmp/work/Logstash_Test
+				rm /tmp/work/lst_reports/sincedb_sample_orig
+				rm -rf ~/work
+				echo "Your system and settings have been restored"
+			elif [ "$reply" == "n" ]
+			then
+				echo "Exiting"
+				break	
+			else
+                		echo $reply " is not a valid option. Please use "y" for "yes" and "n" for "no"."
+                        	continue
+                	fi
+                	break
+		done
 
-        		rm -rf /tmp/work/Logstash_Test
-			rm /tmp/work/lst_reports/sincedb_sample_orig
-			rm -rf ~/work
-			echo "Your system and settings have been restored"
-		else
-			echo "Exiting"
-        	fi
 fi
