@@ -8,11 +8,11 @@ echo "$OSV"
 User=$(whoami)
 # Check Java version, then extract only the relevant numbers
 JV=$(java -version 2>&1 |head -n1 | grep -o -E '[0-9,.,_]+')
-JVN=$(echo "$JV" | tr -dc '0-9' |  cut -c -6)
 java -version 2>&1 | grep "version"
-TEST=$(echo $?)
-
-if [ $TEST -ne 0 ]
+ISJV=$(echo $?)
+update-alternatives --list java | grep 8
+ISJV8=$(echo $?)
+if [ $ISJV -ne 0 ]
 then
 
         echo "Installing OpenJDK 1.8.0_191. During the setup you might be prompted to enter your root password."
@@ -29,7 +29,7 @@ then
 		sudo yum -y install openjdk-8-jre-headless
 	fi
 	
-elif [ $JVN -gt 180191 ]
+elif [ $ISJV8 -ne 0 ]
 then
         if [ -d "/usr/lib/jvm/java-8-openjdk-amd64/" ]
         then
@@ -53,8 +53,8 @@ then
 				if [ "$OSV" == "debian" ]
 				then
 					# Debian-based systems
-	                        	sudo apt install openjdk-8-jre-headless
-                        		echo 2 | sudo update-alternatives --config java
+	                        	sudo apt-get install openjdk-8-jre-headless
+                        		sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 				else
 					# Red Hat-based systems
 					sudo yum -y install openjdk-8-jre-headless
