@@ -7,71 +7,87 @@ echo "$OSV"
 # Get user
 User=$(whoami)
 # Check Java version, then extract only the relevant numbers
-JV=$(java -version 2>&1 |head -n1 | grep -o -E '[0-9,.,_]+')
-java -version 2>&1 | grep "version"
+JV=$(java -version 2>&1 |head -n1 | grep -o -E '[0-9,.,_]+'| head -n1 )
+CJVR=$(readlink -f /usr/bin/java)
+java -version 2>&1 | grep "version" > /dev/null
 ISJV=$(echo $?)
-update-alternatives --list java | grep 8
+update-alternatives --list java | grep java-8-openjdk > /dev/null
 ISJV8=$(echo $?)
+
 if [ $ISJV -ne 0 ]
 then
 
         echo "Installing OpenJDK 1.8.0_191. During the setup you might be prompted to enter your root password."
         # Install Java 8
-        read -s -p "Enter your password for sudo: " sudoPW
+        read -s -p "Enter your password: " sudoPW
         echo $sudoPW | sudo -u $User
 	
 	if [ "$OSV" == "debian" ]
 	then
 		# Installation for Debian-based systems	
-        	sudo apt install openjdk-8-jre-headless
+        	sudo apt-get install openjdk-8-jre-headless
 	else
 		# Installation for Red Hat-based systems
 		sudo yum -y install openjdk-8-jre-headless
 	fi
-	
-elif [ $ISJV8 -ne 0 ]
-then
-        if [ -d "/usr/lib/jvm/java-8-openjdk-amd64/" ]
-        then
-		echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
-                echo "Switching OpenJDK Version 1.8.0_191"
-                read -s -p "Enter your password for sudo: " sudoPW
-                echo $sudoPW | sudo -u $User
-                sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-        else
-                echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
-                echo "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" 
-               	while read -r answer 
-		do
-			if [ "$answer" == "y" ]
-                	then
-                        	echo "During the setup you might be prompted to enter your root passwort"
-                        	#Install Java 8
-                        	echo "OpenJDK 1.8.0_191 is being installed"
-                       		read -s -p "Enter your password for sudo: " sudoPW
-                        	echo $sudoPW | sudo -u $User
-				if [ "$OSV" == "debian" ]
-				then
-					# Debian-based systems
-	                        	sudo apt-get install openjdk-8-jre-headless
-                        		sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-				else
-					# Red Hat-based systems
-					sudo yum -y install openjdk-8-jre-headless
+fi	
 
-				fi
-				sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-                	elif [ "$answer" == "n" ]
+if [ $ISJV8 -eq 0 ] && [ "$JV" != "1.8.0_191" ]
+then
+        
+	echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
+	echo "Do you want to switch to OpenJDK Version 1.8.0.191?[y/n]"
+	while read -r answ
+	do
+		if [ "$answ" == "y" ]
+		then	
+        		echo "Switching OpenJDK Version 1.8.0_191"
+        		sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 
+		elif [ "$answ" == "n" ]
+		then
+			echo "Can not run Logstash Test \ Exiting"
+                	
+			# Terminate current bash
+                        kill -s SIGTERM $$
+
+		else 
+       			echo $answ " is not a valid option. Please use "y" for "yes" or "n" for "no"."
+			continue
+		fi
+		break		
+	done
+elif [ $ISJV8 -ne 0 ]&&[ "$JV" != "1.8.0_191" ]
+then	
+        echo "You are running OpenJDK Version $JV. To run Logstash you need Version 1.8.0_191 or lower"
+        echo "Do you want me to install and setup OpenJDK Version 1.8.0_191[y/n]?" 
+  	while read -r answer 
+	do
+		if [ "$answer" == "y" ]
+               	then
+                       	echo "During the setup you might be prompted to enter your root passwort"
+                       	#Install Java 8
+                       	echo "OpenJDK 1.8.0_191 is being installed"
+			if [ "$OSV" == "debian" ]
 			then
-                        	echo "Can not run Logstash Test \ Exiting"
-				break
+				# Debian-based systems
+	                       	sudo apt-get install openjdk-8-jre-headless
+                        	sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 
 			else
-				echo $answer " is not a valid option. Please use "y" for "yes" or "n" for "no"."
-				continue	
-			fi
-			break
-		done
-        fi
+				# Red Hat-based systems
+ 				sudo yum -y install openjdk-8-jre-headless
+				sudo update-alternatives --set java  /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 
+			fi	
+                elif [ "$answer" == "n" ]
+		then
+                       	echo "Can not run Logstash Test \ Exiting"
+		 	break
+		else
+			echo $answer " is not a valid option. Please use "y" for "yes" or "n" for "no"."
+			continue	
+		fi
+		break
+	done
+
 fi
 
 # Revoking sudo rights 
@@ -200,11 +216,9 @@ then
 				echo "During the reverse setup you will be prompted to enter your root passwort"
         			# Reversing changes
 				# Checking if Java 8 was already on this PC. If not it will be removed
-				if [ -z "$JV" ]
+				if [ $ISJV -ne 0 ]
 				then	
         				echo "Removing OpenJDK 1.8.0_191"
-                			read -s -p "Enter your password for sudo: " sudoPW
-                			echo $sudoPW | sudo -u $User
 					if [ "$OSV" == "debian" ]
 					then
 						# Debian-based systems
@@ -213,8 +227,10 @@ then
 						# Red Hat-based systems
 						sudo yum -y remove openjdk-8-jre-headless
 					fi
-
-				fi
+				else	
+				 	echo "Switching back to OpenJDK $JV"
+                                        sudo update-alternatives --set java $CJVR 
+                               	fi
 
         			rm -rf /tmp/work/Logstash_Test
 				rm /tmp/work/lst_reports/sincedb_sample_orig
