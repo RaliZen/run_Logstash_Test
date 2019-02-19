@@ -13,16 +13,15 @@ java -version 2>&1 | grep "version" > /dev/null
 ISJV=$(echo $?)
 update-alternatives --list java | grep java-8-openjdk > /dev/null
 ISJV8=$(echo $?)
+git --version > /dev/null
+G=$(echo $?)
 
 if [ $ISJV -ne 0 ]
 then
 
         echo "Installing OpenJDK 1.8.0_191. During the setup you might be prompted to enter your root password."
         # Install Java 8
-        read -s -p "Enter your password: " sudoPW
-        echo $sudoPW | sudo -u $User
-	
-	if [ "$OSV" == "debian" ]
+        if [ "$OSV" == "debian" ]
 	then
 		# Installation for Debian-based systems	
         	sudo apt-get install openjdk-8-jre-headless
@@ -31,6 +30,21 @@ then
 		sudo yum -y install openjdk-8-jre-headless
 	fi
 fi	
+
+if [ $G -ne 0 ]
+then
+
+        echo "Installing GIT. During the setup you might be prompted to enter your root password."
+        # Install GIT
+        if [ "$OSV" == "debian" ]
+        then
+                # Installation for Debian-based systems
+                sudo apt-get install git
+        else
+                # Installation for Red Hat-based systems
+                sudo yum -y install git
+        fi
+fi
 
 if [ $ISJV8 -eq 0 ] && [ "$JV" != "1.8.0_191" ]
 then
@@ -231,6 +245,19 @@ then
 				 	echo "Switching back to OpenJDK $JV"
                                         sudo update-alternatives --set java $CJVR 
                                	fi
+				
+				if [ $G -ne 0 ]
+                                then
+                                        echo "Removing GIT"
+                                        if [ "$OSV" == "debian" ]
+                                        then
+                                                # Debian-based systems
+                                                sudo apt-get remove git
+                                        else
+                                                # Red Hat-based systems
+                                                sudo yum -y remove git                  
+                                fi
+
 
         			rm -rf /tmp/work/Logstash_Test
 				rm /tmp/work/lst_reports/sincedb_sample_orig
