@@ -209,7 +209,7 @@ then
 fi
 
 
-if  grep $FSZ sincedb_sample_orig 
+if  grep $FSZ sincedb_sample_orig > /dev/null 
 then	
   	kill -s SIGTERM $PID&
 	echo "Logstash terminated"
