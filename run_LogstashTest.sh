@@ -227,7 +227,7 @@ then
 		do
 			if [ "$reply" == "y" ]
 			then
-				echo "During the reverse setup you will be prompted to enter your root passwort"
+				echo "During the reverse setup you might be prompted to enter your root passwort"
         			# Reversing changes
 				# Checking if Java 8 was already on this PC. If not it will be removed
 				if [ $ISJV -ne 0 ]
@@ -241,7 +241,8 @@ then
 						# Red Hat-based systems
 						sudo yum -y remove openjdk-8-jre-headless
 					fi
-				else	
+				elif [ $ISJV -eq 0 ] && [ "$JV" != "1.8.0_191" ]
+				then	
 				 	echo "Switching back to OpenJDK $JV"
                                         sudo update-alternatives --set java $CJVR 
                                	fi
