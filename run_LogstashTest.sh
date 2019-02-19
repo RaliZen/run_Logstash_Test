@@ -248,15 +248,16 @@ then
 				
 				if [ $G -ne 0 ]
                                 then
-                                        echo "Removing GIT"
-                                        if [ "$OSV" == "debian" ]
-                                        then
-                                                # Debian-based systems
-                                                sudo apt-get remove git
-                                        else
-                                                # Red Hat-based systems
-                                                sudo yum -y remove git                  
-                                fi
+                                      echo "Removing GIT"
+                                      if [ "$OSV" == "debian" ]
+                                      then
+                                              # Debian-based systems
+                                              sudo apt-get remove git
+                                      else
+                                              # Red Hat-based systems
+                                              sudo yum -y remove git                  
+                                      fi
+				fi
 
 
         			rm -rf /tmp/work/Logstash_Test
